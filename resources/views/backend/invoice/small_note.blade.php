@@ -48,8 +48,8 @@
     
     <!-- Company information -->
     <div class="text-center">
-        <h3 style="margin-bottom: 5px;">{{ strtoupper($setting->company_name) }}</h3>
-        <p>{{ strtoupper($setting->address) }}</p>
+        <h3 style="margin-bottom: 5px;">Siddiqia Publication</h3>
+        <p>38/3 Bangla Bazar (1st Floor), Dhaka-1100</p>
     </div>
     <br>
     

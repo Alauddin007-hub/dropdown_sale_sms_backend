@@ -78,6 +78,8 @@ Route::post('/transactions/store', [TransactionController::class, 'store'])->nam
 
 Route::get('/transactions/note', [TransactionController::class, 'big_note'])->name('transactions.big_note');
 
+Route::get('/transactions/snotes', [TransactionController::class, 'small_note'])->name('transactions.small_note');
+
 Route::get('/transactions/print', [TransactionController::class, 'print_show'])->name('transactions.print_show');
 
 // Pos Interface

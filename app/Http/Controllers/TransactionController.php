@@ -188,4 +188,27 @@ class TransactionController extends Controller
         // Stream the generated PDF to the browser with a dynamic filename
         return $pdf->stream('Transaction-' . date('Y-m-d-his') . '.pdf');
     }
+
+    public function small_note()
+{
+    // Retrieve the settings for the application
+    // $setting = Setting::first();
+
+    // Find the sale transaction using the session ID stored in 'id_penjualan'
+    $sale = Sale::find(session('id'));
+
+    // If the sale transaction is not found, abort the request with a 404 error
+    if (!$sale) {
+        abort(404);
+    }
+
+    // Retrieve the details of the sale transaction along with related product information
+    $detail = SaleDetails::with('book')
+        ->where('id', session('id'))
+        ->get();
+    
+    // Pass the fetched data to the 'penjualan.nota_kecil' view
+    return view('backend.invoice.small_note', compact('sale', 'detail'));
+}
+
 }
