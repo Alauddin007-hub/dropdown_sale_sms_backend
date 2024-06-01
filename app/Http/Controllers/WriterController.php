@@ -12,7 +12,7 @@ class WriterController extends Controller
      */
     public function index()
     {
-        $lekhok = Writer::all();
+        $lekhok = Writer::orderBy('id', 'DESC' )->get();
         return view('backend.writer.index',compact('lekhok'));
     }
 

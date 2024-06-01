@@ -14,7 +14,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::all();
+        $books = Book::orderBy('id', 'DESC' )->get();
         return view('backend.book.index', compact('books'));
     }
 

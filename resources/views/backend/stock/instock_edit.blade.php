@@ -15,7 +15,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Re-Stock Books</li>
+                        <li class="breadcrumb-item active">Change Stock Books</li>
                     </ol>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                         </div>
                         @endif
                         <!-- form start -->
-                        <form method="post" action="{{ route('store.restock') }}" enctype="multipart/form-data">
+                        <form method="post" action="{{ route('stock.update', $stock->id) }}" enctype="multipart/form-data">
 
                             @csrf
                             <div class="card-body">
@@ -52,18 +52,18 @@
                                         <option selected>Choose Book</option>
                                         @if(!empty($book->count()))
                                         @foreach($book as $item)
-                                        <option value="{{$item->id}}">{{$item->book_bangla_name}}</option>
+                                        <option value="{{$item->id}}" @selected(old('book_id', $item->id) == $item->id)>{{$item->book_bangla_name}}</option>
                                         @endforeach
                                         @endif
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="quantity">Quantity</label>
-                                    <input type="number" name="quantity" class="form-control" placeholder="Enter Book Quantity">
+                                    <input type="number" name="quantity" value="{{$stock->quantity ? $stock->quantity : old('quantity') }}" class="form-control" placeholder="Enter Book Quantity">
                                 </div>
                                 <div class="form-group">
                                     <label for="price">Selling Per Book Price</label>
-                                    <input type="number" name="price" class="form-control" placeholder="Enter Per Book Price">
+                                    <input type="number" name="price" value="{{$stock->price ? $stock->price : old('price') }}" class="form-control" placeholder="Enter Per Book Price">
                                 </div>
                             </div>
                             <!-- /.card-body -->

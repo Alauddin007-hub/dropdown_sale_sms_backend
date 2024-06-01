@@ -12,7 +12,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customer = Customer::get();
+        $customer = Customer::orderBy('id', 'DESC' )->get();
         return view('backend.customer.index',compact('customer'));
     }
 
@@ -73,7 +73,7 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required',
-            // 'phone' => 'required|number',
+            'phone' => 'required',
             'address' => 'required|max:100',
         ]);
 

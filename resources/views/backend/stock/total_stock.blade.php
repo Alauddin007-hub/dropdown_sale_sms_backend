@@ -10,12 +10,12 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1>DataTables</h1>
+          <h1>Available Stock</h1>
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active">DataTables</li>
+            <li class="breadcrumb-item active">Stock</li>
           </ol>
         </div>
       </div>
@@ -43,7 +43,7 @@
             @endif
             <!-- /.card-header -->
             <div class="card-body">
-              <table id="example1" class="table table-bordered table-striped">
+              <table class="table table-bordered table-striped">
                 <thead>
                   <tr>
                     <th>#SL</th>
@@ -52,7 +52,7 @@
                     <th>Book Bangla Name</th>
                     <th>Total Quantity</th>
                     <th>Total Price</th>
-                    <th>Status</th>
+                    <!-- <th>Status</th> -->
                   </tr>
                 </thead>
                 <tbody>
@@ -66,7 +66,7 @@
                     <td>{{$item->book->book_bangla_name}}</td>
                     <td>{{$item->total_quantity}}</td>
                     <td>{{$item->total_price}}</td>
-                    <td>{{$item->status}}</td>
+                    <!-- <td>{{$item->status}}</td> -->
                   </tr>
                   @endforeach
 

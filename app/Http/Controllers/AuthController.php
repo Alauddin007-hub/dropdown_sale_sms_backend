@@ -45,18 +45,18 @@ class AuthController extends Controller
         {
             if(Auth::user()->user_type == 0 )
             {
-                echo "Super Admin"; die();
-                // return redirect()->intended('superadmin/dashboard');
+                // echo "Super Admin"; die();
+                return redirect()->route('dashboard');
             }
             else if (Auth::user()->user_type == 1)
             {
-                echo "Admin"; die();
-                // return redirect()->intended('admin/dashboard');
+                // echo "Admin"; die();
+                return redirect()->route('dashboard');
             }
             else if (Auth::user()->user_type == 2)
             {
-                echo "Normal User"; die();
-                // return redirect()->intended('user/dashboard');
+                // echo "Normal User"; die();
+                return redirect()->route('dashboard');
             }
             else
             {
@@ -72,5 +72,11 @@ class AuthController extends Controller
     public function forgot()
     {
         return view('backend.auth.forgot_password');
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->route('login');
     }
 }

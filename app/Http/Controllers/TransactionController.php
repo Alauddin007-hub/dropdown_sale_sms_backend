@@ -10,16 +10,15 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\Stock;
 use Carbon\Carbon;
-// use Barryvdh\DomPDF\PDF;
-use Illuminate\Support\Facades\PDF;
-use Illuminate\Support\Facades\DB;
 use Rmunate\Utilities\SpellNumber;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
     public function index()
     {
-        $sales = SaleDetails::get();
+        $sales = Sale::orderBy('id', 'DESC')->get();
         return view('backend.sale.index', compact('sales'));
     }
     public function create()
@@ -149,29 +148,30 @@ class TransactionController extends Controller
 
     public function big_note(Request $request)
     {
-        // dd($request->all());
         // Find the sales transaction using the ID stored in the session
         $sale = Sale::find(session('id'));
-        // dd($sale);
 
         // If the sales transaction is not found, return a 404 error
-        if (!$sale) {
-            abort(404);
-        }
+        // if (!$sale) {
+        //     abort(404);
+        // }
 
         // Retrieve the details of the sales transaction and load related product information
         $details = SaleDetails::with('book')
-            ->where('sale_id', session('id'))
+            ->where('sales_id', session('id'))
             ->get();
 
-            // dd($details);
-
         // Convert the total price to words using the SpellNumber class
-        $spell = SpellNumber::value($sale->total_price)
-            ->locale('en') 
-            ->currency('Taka')
-            ->fraction('Paisa')
-            ->toMoney();
+        try {
+            $spell = SpellNumber::spell($sale->total_price) // Use 'spell' method instead of 'value'
+                ->locale('en')
+                ->currency('Taka')
+                ->fraction('Paisa')
+                ->toMoney();
+        } catch (\Exception $e) {
+            // Handle the error or provide a fallback
+            $spell = 'Unable to convert number to words';
+        }
 
         $spell = ucfirst($spell);
 
@@ -180,7 +180,6 @@ class TransactionController extends Controller
 
         // Load the view for the large invoice and pass the retrieved data to it
         $pdf = PDF::loadView('backend.invoice.invo', compact('sale', 'details', 'spell', 'currentDate'));
-        dd($pdf);
 
         // Set the dimensions and orientation of the PDF
         $pdf->setPaper([0, 0, 609, 440], 'portrait');
@@ -188,27 +187,25 @@ class TransactionController extends Controller
         // Stream the generated PDF to the browser with a dynamic filename
         return $pdf->stream('Transaction-' . date('Y-m-d-his') . '.pdf');
     }
-
     public function small_note()
-{
-    // Retrieve the settings for the application
-    // $setting = Setting::first();
+    {
+        // Retrieve the settings for the application
+        // $setting = Setting::first();
 
-    // Find the sale transaction using the session ID stored in 'id_penjualan'
-    $sale = Sale::find(session('id'));
+        // Find the sale transaction using the session ID stored in 'id_penjualan'
+        $sale = Sale::find(session('id'));
 
-    // If the sale transaction is not found, abort the request with a 404 error
-    if (!$sale) {
-        abort(404);
+        // If the sale transaction is not found, abort the request with a 404 error
+        if (!$sale) {
+            abort(404);
+        }
+
+        // Retrieve the details of the sale transaction along with related product information
+        $detail = SaleDetails::with('book')
+            ->where('id', session('id'))
+            ->get();
+
+        // Pass the fetched data to the 'penjualan.nota_kecil' view
+        return view('backend.invoice.small_note', compact('sale', 'detail'));
     }
-
-    // Retrieve the details of the sale transaction along with related product information
-    $detail = SaleDetails::with('book')
-        ->where('id', session('id'))
-        ->get();
-    
-    // Pass the fetched data to the 'penjualan.nota_kecil' view
-    return view('backend.invoice.small_note', compact('sale', 'detail'));
-}
-
 }

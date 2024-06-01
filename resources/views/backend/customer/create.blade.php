@@ -48,7 +48,7 @@
                             <div class="card-body">
                                 <div class="form-group">
                                     <label for="exampleInputEmail1">Customer Name</label>
-                                    <input type="text" name="name" class="form-control" placeholder="Enter Writer Name">
+                                    <input type="text" name="name" class="form-control" placeholder="Enter Customer Name">
                                 </div>
                                 <div class="form-group">
                                     <label for="exampleInputPassword1">Phone Number</label>

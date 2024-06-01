@@ -47,24 +47,18 @@
                 <thead>
                   <tr>
                     <th>#SL</th>
-                    <th>Book English Name</th>
-                    <th>Book Bangla Name</th>
-                    <th>Customer Name</th>
-                    <th>Unit</th>
-                    <th>Price</th>
-                    <th>Sub-Total</th>
+                    <th>Total Quantity</th>
+                    <th>Discount</th>
+                    <th>Total Price</th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach ( $sales as $key=>$item )
                   <tr>
                     <td>{{++$key}}</td>
-                    <td>{{$item->book->book_english_name}}</td>
-                    <td>{{$item->book->book_bangla_name}}</td>
-                    <td>{{$item->customer->name}}</td>
-                    <td>{{$item->quantity}}</td>
-                    <td>{{$item->price}}</td>
-                    <td>{{$item->subtotal}}</td>
+                    <td>{{$item->total_quantity}}</td>
+                    <td>{{$item->discount}}</td>
+                    <td>{{$item->total_price}}</td>
                   </tr>
                   @endforeach
 

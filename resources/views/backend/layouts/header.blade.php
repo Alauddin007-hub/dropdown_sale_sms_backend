@@ -63,7 +63,7 @@
                 </input>
             </form> -->
 
-            <form class="dropdown-item d-flex align-items-center" action="" method="post">
+            <form class="dropdown-item d-flex align-items-center" action="{{route('logout')}}" method="get">
                         @csrf
                         <i class="mdi mdi-logout font-size-16 align-middle mr-1"><input class="btn btn-light" style="border: none; outline:none" type="submit" value="Sign out"></i>
                         <i class="fa-solid fa-right-from-bracket"></i>

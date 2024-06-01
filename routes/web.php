@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\WriterController;
@@ -15,9 +16,14 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('backend.auth.login');
 // });
-Route::get('/dashboard', function () {
-    return view('backend.dashboard.super_admin');
-});
+// Route::get('/dashboard', function () {
+//     return view('backend.dashboard.super_admin');
+// });
+// Route::group(['middleware' => 'super-admin'], function(){
+
+// });
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+
 
 // Authentication
 Route::get('/create', [AuthController::class, 'index'])->name('registration');
@@ -25,6 +31,7 @@ Route::post('/register', [AuthController::class, 'registration'])->name('registe
 Route::get('/', [AuthController::class, 'create'])->name('login');
 Route::post('/login/store', [AuthController::class, 'login'])->name('login.store');
 Route::get('/forget', [AuthController::class, 'forgot'])->name('forgot');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Writer
 Route::get('/lekhok', [WriterController::class, 'index'])->name('lekhok.index');
@@ -55,9 +62,9 @@ Route::get('/store', [StockController::class, 'index'])->name('stocks');
 Route::get('/store/create', [StockController::class, 'create'])->name('store.create');
 Route::post('/stock/store', [StockController::class, 'restock'])->name('store.restock');
 Route::get('/stock_detail', [StockController::class, 'in_stock'])->name('stockDetails');
-// Route::get('/boi/edit/{id}', [BookController::class, 'edit'])->name('boi.edit');
-// Route::post('/boi/update/{id}', [BookController::class, 'update'])->name('boi.update');
-// Route::get('/boi/delete/{id}', [BookController::class, 'destroy'])->name('boi.delete');
+Route::get('/stock/edit/{id}', [StockController::class, 'edit'])->name('stock.edit');
+Route::post('/stock/update/{id}', [StockController::class, 'update'])->name('stock.update');
+Route::get('/stock/delete/{id}', [BookController::class, 'destroy'])->name('stock.delete');
 
 // customer
 Route::get('/Customer', [CustomerController::class, 'index'])->name('customers');

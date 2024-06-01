@@ -12,7 +12,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $cats = Category::all();
+        $cats = Category::orderBy('id', 'DESC' )->get();
         return view('backend.category.index',compact('cats'));
     }
 
