@@ -98,16 +98,31 @@ class WriterController extends Controller
 
         if ($validated) {
 
-            $data = [
-                'writer_name' => $request->writer_name,
-                'short_description' => $request->short_description,
-                'image' => $imageName,
-            ];
-            $lekhok = Writer::find($request->id);
-
-            // dd($data);
-            $lekhok->update($data);
-            return redirect('/lekhok')->with('success', "Writer has been Updated Successfully");
+            if(empty($imageName))
+            {
+                $data = [
+                    'writer_name' => $request->writer_name,
+                    'short_description' => $request->short_description,
+                ];
+                $lekhok = Writer::find($request->id);
+                
+                // dd($data);
+                $lekhok->update($data);
+                return redirect('/lekhok')->with('success', "Writer has been Updated Successfully");
+            }
+            else
+            {
+                $data = [
+                    'writer_name' => $request->writer_name,
+                    'short_description' => $request->short_description,
+                    'image' => $imageName,
+                ];
+                $lekhok = Writer::find($request->id);
+    
+                // dd($data);
+                $lekhok->update($data);
+                return redirect('/lekhok')->with('success', "Writer has been Updated Successfully");
+            }
         }
     }
 

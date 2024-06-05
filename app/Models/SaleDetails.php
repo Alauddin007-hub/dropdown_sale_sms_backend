@@ -13,11 +13,9 @@ class SaleDetails extends Model
     protected $fillable = [
         'book_id',
         'sales_id',
-        'customer_id',
         'quantity',
         'price',
         'subtotal',
-        'user_id',
         'status',
     ];
 
@@ -26,10 +24,8 @@ class SaleDetails extends Model
     }
 
     public function sale(){
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(Sale::class, 'sales_id');
     }
 
-    public function customer(){
-        return $this->belongsTo(Customer::class);
-    }
+   
 }

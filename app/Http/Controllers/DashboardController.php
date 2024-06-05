@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         if(Auth::user()->user_type_id == 1)
         {
+            // dd($request->all());
             return view('backend.dashboard.super_admin');
         }
         elseif(Auth::user()->user_type_id == 2)
@@ -22,4 +23,6 @@ class DashboardController extends Controller
             return view('backend.dashboard.normal_user');
         }
     }
+
+    
 }

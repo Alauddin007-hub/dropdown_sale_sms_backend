@@ -10,7 +10,7 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1>Sales List</h1>
+          <h1>Today Sales List</h1>
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
@@ -51,23 +51,16 @@
                     <th>Total Quantity</th>
                     <th>Discount</th>
                     <th>Total Price</th>
-                    <th>Print</th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach ($sales as $key => $item)
                   <tr>
-                    <td>{{ ++$key }}</td>
-                    <td>{{ optional($item->customer)->name ?? 'N/A' }}</td>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $item->customer->name ?? 'N/A' }}</td>
                     <td>{{ $item->total_quantity }}</td>
                     <td>{{ $item->discount }}</td>
                     <td>{{ $item->total_price }}</td>
-                    <td>
-                      <a class="btn btn-warning btn-flat" href="{{ route('transactions.invoice', $item->id) }}" target="_blank">Print invoice</a>
-
-                      <!-- <i class="fa-solid fa-print"></i> -->
-                      <!-- <i class="fa-solid fa-file-pdf"></i> -->
-                    </td>
                   </tr>
                   @endforeach
                 </tbody>

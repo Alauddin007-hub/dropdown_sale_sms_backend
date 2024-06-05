@@ -5,6 +5,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\WriterController;
@@ -19,9 +20,6 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/dashboard', function () {
 //     return view('backend.dashboard.super_admin');
 // });
-// Route::group(['middleware' => 'super-admin'], function(){
-
-// });
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
 
@@ -32,6 +30,11 @@ Route::get('/', [AuthController::class, 'create'])->name('login');
 Route::post('/login/store', [AuthController::class, 'login'])->name('login.store');
 Route::get('/forget', [AuthController::class, 'forgot'])->name('forgot');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Route::group(['middleware' => 'super-admin'], function(){
+
+// });
+
 
 // Writer
 Route::get('/lekhok', [WriterController::class, 'index'])->name('lekhok.index');
@@ -77,17 +80,30 @@ Route::get('/customer/delete/{id}', [CustomerController::class, 'destroy'])->nam
 // Transaction or Sales
 Route::get('/transaction', [TransactionController::class, 'index'])->name('transactions.index');
 
+Route::get('/today/transaction', [TransactionController::class, 'todayTransaction'])->name('transactions.today');
+
 Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
 
 Route::get('/books/search', [TransactionController::class, 'searchBooks'])->name('books.search');
 
 Route::post('/transactions/store', [TransactionController::class, 'store'])->name('transactions.store');
 
-Route::get('/transactions/note', [TransactionController::class, 'big_note'])->name('transactions.big_note');
-
-Route::get('/transactions/snotes', [TransactionController::class, 'small_note'])->name('transactions.small_note');
-
+// Invoice Generate
 Route::get('/transactions/print', [TransactionController::class, 'print_show'])->name('transactions.print_show');
+
+Route::get('/transactions/invo/{id}', [TransactionController::class, 'invoice'])->name('transactions.invoice');
+
+
+Route::get('extra/report/pdf', [TransactionController::class, 'reportPDF'])
+->name('report.pdf');
+
+
+Route::get('invoice/print', [TransactionController::class, 'print'])
+->name('invoice.print');
+
+// report Generate
+Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+Route::post('/reports', [ReportController::class, 'generate'])->name('reports.generate');
 
 // Pos Interface
 Route::get('/pos', function () {

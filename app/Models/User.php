@@ -24,6 +24,9 @@ class User extends Authenticatable
         'image',
     ];
 
+    public function user_type(){
+        return $this->belongsTo(User_type::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -117,21 +117,45 @@ class BookController extends Controller
 
         if ($validated) {
 
-            $data = [
-                'book_english_name' => $request->book_english_name,
-                'book_bangla_name' => $request->book_bangla_name,
-                'category_id' => $request->category_id,
-                'writer_id' => $request->writer_id,
-                'short_description' => $request->short_description,
-                'publising_date' => $request->publising_date,
-                'book_of_page' => $request->book_of_page,
-                'image' => $imageName,
-            ];
-            // dd($data);
-            $book = Book::find($request->id);
+            if(empty($imageName))
+            {
+                $data = [
+                    'book_english_name' => $request->book_english_name,
+                    'book_bangla_name' => $request->book_bangla_name,
+                    'category_id' => $request->category_id,
+                    'writer_id' => $request->writer_id,
+                    'short_description' => $request->short_description,
+                    'price' => $request->price,
+                    'publising_date' => $request->publising_date,
+                    'book_of_page' => $request->book_of_page,
+                ];
+                // dd($data);
+                $book = Book::find($request->id);
+    
+                $book->update($data);
+                return redirect('/boi')->with('success', "Book has been Updated Successfully");
+            }
+            else
+            {
+                $data = [
+                    'book_english_name' => $request->book_english_name,
+                    'book_bangla_name' => $request->book_bangla_name,
+                    'category_id' => $request->category_id,
+                    'writer_id' => $request->writer_id,
+                    'short_description' => $request->short_description,
+                    'price' => $request->price,
+                    'publising_date' => $request->publising_date,
+                    'book_of_page' => $request->book_of_page,
+                    'image' => $imageName,
+                ];
+                // dd($data);
+                $book = Book::find($request->id);
+    
+                $book->update($data);
+                return redirect('/boi')->with('success', "Book has been Updated Successfully");
+            }
 
-            $book->update($data);
-            return redirect('/boi')->with('success', "Book has been Updated Successfully");
+            
         }
     }
 

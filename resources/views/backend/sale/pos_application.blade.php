@@ -127,7 +127,7 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th>Code</th>
+                            <th>In Stock</th>
                             <th>Name</th>
                             <th>Purchase Price</th>
                             <th><i class="fa fa-cog"></i></th>
@@ -162,7 +162,8 @@
                                 html += `
                                 <tr>
                                     <td width="5%">${index + 1}</td>
-                                    <td>${item.book_id}</td>
+                                    <td hidden>${item.book_id}</td>
+                                    <td>${item.quantity}</td>
                                     <td>${item.book.book_bangla_name}</td>
                                     <td>${item.price}</td>
                                     <td>

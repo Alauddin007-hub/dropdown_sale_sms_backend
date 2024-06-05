@@ -69,7 +69,7 @@
                     <td>{{$item->quantity}}</td>
                     <td>{{$item->price}}</td>
                     <td>
-                      <a class="btn btn-secondary" href="{{route('stock.edit', $item->id)}}"><i class="fa-solid fa-pen-to-square"></i></a>
+                      <a class="btn btn-secondary" href="{{route('stock.edit', $item->id)}}" hidden><i class="fa-solid fa-pen-to-square"></i></a>
 
                       <a class="btn btn-danger" href="{{route('stock.delete', $item->id)}}" onclick="return confirm('Are you sure to delete')"><i class="fa-solid fa-trash"></i></a>
                     </td>

@@ -86,6 +86,10 @@
                                     <input type="file" name="image" class="form-control">
                                 </div>
                                 <div class="form-group">
+                                    <label for="image">Price</label>
+                                    <input type="number" name="price" value="{{$book->price ? $book->price : old('price') }}" class="form-control">
+                                </div>
+                                <div class="form-group">
                                     <label for="publising_date">Publishing Date</label>
                                     <input type="date" name="publising_date" value="{{$book->publising_date ? $book->publising_date : old('publising_date') }}" class="form-control">
                                 </div>

@@ -4,24 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Invoice</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
+        *{
+            font-size: medium;
+        }
         body {
             font-family: Arial, sans-serif;
         }
 
         h2 {
-            font-weight: 800;
+            font-weight: 700;
         }
 
         .invoice {
-            width: 50%;
+            width: 90%;
             margin: 20px auto;
             padding: 20px;
             border: 1px solid #ccc;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            height: 110vh;
+            height: 90vh;
         }
 
         .invoice-header {
@@ -43,7 +48,7 @@
         .invoice-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20%;
+            margin-bottom: 15%;
         }
 
         .invoice-table th,
@@ -63,10 +68,29 @@
         .invoice-total {
             float: right;
         }
+
+        button {
+            width: 60px;
+            color: aqua;
+            border: 1px solid bisque;
+            border-radius: 10px;
+            padding: 10px;
+            margin: auto;
+        }
+
+        button a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .head-print {
+            justify-content: right;
+            text-align: right;
+        }
     </style>
 </head>
 
-<body>
+<body onload="window.print()">
     <div class="invoice">
         <div class="invoice-header">
             <div class="invoice-header-left">
@@ -80,6 +104,8 @@
                 <h2>Invoice</h2>
                 <p>Invoice Number: #123456</p>
                 <p>Date: {{ $currentDate }}</p>
+                <p>Customer Name : {{ $customer->name }}</p>
+                <p>Phone : 0{{ $customer->phone }}</p>
             </div>
         </div>
 
@@ -89,8 +115,8 @@
                     <th>#sL</th>
                     <th>Item</th>
                     <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
+                    <th>Unit Price (Taka)</th>
+                    <th>Total (Taka)</th>
                 </tr>
             </thead>
             <tbody>
@@ -104,22 +130,35 @@
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $item->book->book_bangla_name }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>Taka {{ $item->price }}</td>
-                    <td>Taka {{ $item_total }}</td>
+                    <td>{{ $item->price }}</td>
+                    <td>{{ $item_total }}</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
 
         <div class="invoice-total">
-            <p>Subtotal: Taka {{ $sub_total }}</p>
-            <p>Total: Taka {{ $sale->total_price }}</p>
+            <p>Subtotal: {{ $sub_total }} Taka </p>
+            <p>Discount: {{ $sale->discount ?? 0 }} Taka </p>
+            <p>Total: {{ $sale->total_price ?? 'N/A' }} Taka </p>
         </div>
 
         <div class="invoice-footer">
             <p>Thank you for shopping with us!</p>
         </div>
     </div>
+
+    <script>
+        let body = document.body;
+        let html = document.documentElement;
+        let height = Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+
+        document.cookie = "innerHeight=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "innerHeight="+ ((height + 50) * 0.264583);
+    </script>
 </body>
 
 </html>

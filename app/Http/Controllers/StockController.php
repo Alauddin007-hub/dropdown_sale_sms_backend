@@ -90,53 +90,54 @@ class StockController extends Controller
         return view('backend.stock.instock_edit', compact('stock', 'book'));
     }
 
-    // public function update(Request $request)
-    // {
-    //     // dd($request->all());
+    public function update(Request $request)
+    {
+        // dd($request->all());
 
-    //     $validated = $request->validate([
-    //         'book_id' => 'required',
-    //         'quantity' => 'required|integer|min:1', // Assuming quantity should be a positive integer
-    //         'price' => 'required|numeric|min:0', // Assuming price should be a non-negative number
-    //     ]);
-    //     // Create new stock detail
-    //     $data = [
-    //         'book_id' => $request->book_id,
-    //         'quantity' => $request->quantity,
-    //         'price' => $request->price,
-    //     ];
+        $validated = $request->validate([
+            'book_id' => 'required',
+            'quantity' => 'required|integer|min:1', // Assuming quantity should be a positive integer
+            'price' => 'required|numeric|min:0', // Assuming price should be a non-negative number
+        ]);
+        // Create new stock detail
+        $data = [
+            'book_id' => $request->book_id,
+            'quantity' => $request->quantity,
+            'price' => $request->price,
+        ];
 
-    //    $stockDetail = Stock_Detail::find($request->id);
+       $stockDetail = Stock_Detail::find($request->id);
 
         
-    //     $check = Book::where('id', $request->book_id)->first();
-    //     // dd($check);
-    //     $price = $request->price;
-    //     // Book::update($request->id);
-    //     // dd($price);
-    //     if($check)
-    //     {
+        $check = Book::where('id', $request->book_id)->first();
+        
+        dd($check);
+        $price = $request->price;
+        // Book::update($request->id);
+        // dd($price);
+        if($check)
+        {
 
-    //         $check->price += $price;
-    //         $check->save;
-    //     }
+            $check->price += $price;
+            $check->save;
+        }
     
-    //     $stock = Stock::where('book_id', $request->book_id)->first();
+        $stock = Stock::where('book_id', $request->book_id)->first();
     
-    //     if (!$stock) {
-    //         Stock::create([
-    //             'book_id' => $request->book_id,
-    //             'stock_detail_id' => $stockDetail->id,
-    //             'total_quantity' => $request->quantity,
-    //             'total_price' => $request->quantity * $request->price,
-    //         ]);
-    //     } else {
-    //         // Update existing stock record
-    //         $stock->total_quantity += $request->quantity;
-    //         $stock->total_price += $request->quantity * $request->price;
-    //         $stock->save();
-    //     }
+        if (!$stock) {
+            Stock::create([
+                'book_id' => $request->book_id,
+                'stock_detail_id' => $stockDetail->id,
+                'total_quantity' => $request->quantity,
+                'total_price' => $request->quantity * $request->price,
+            ]);
+        } else {
+            // Update existing stock record
+            $stock->total_quantity += $request->quantity;
+            $stock->total_price += $request->quantity * $request->price;
+            $stock->save();
+        }
     
-    //     return redirect()->route('stocks')->with('success', 'Book has been updated.');
-    // }
+        return redirect()->route('stocks')->with('success', 'Book has been updated.');
+    }
 }

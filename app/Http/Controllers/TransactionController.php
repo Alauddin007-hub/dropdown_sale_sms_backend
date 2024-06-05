@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\Stock;
-use Carbon\Carbon;
-use Rmunate\Utilities\SpellNumber;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Rmunate\Utilities\SpellNumber;
+use PDF;
+use PhpParser\Node\Stmt\Return_;
 
 class TransactionController extends Controller
 {
@@ -21,6 +23,24 @@ class TransactionController extends Controller
         $sales = Sale::orderBy('id', 'DESC')->get();
         return view('backend.sale.index', compact('sales'));
     }
+
+    public  function todayTransaction()
+    {
+        // $currentDate = getdate();
+        // $date = $currentDate['mday'];
+
+        // $sales = DB::table('Sales')->whereDay('created_at', $date)->orderBy('id', 'DESC')->get();
+        
+        $currentDate = now()->day; // Use Carbon's now() method to get the current day
+
+        $sales = Sale::whereDay('created_at', $currentDate)
+                    ->with('customer') // Eager load the customer relationship
+                    ->orderBy('id', 'DESC')
+                    ->get();
+    
+        return view('backend.sale.todaySale', compact('sales'));
+    }
+
     public function create()
     {
         $customers = Customer::all();
@@ -31,23 +51,11 @@ class TransactionController extends Controller
 
     public function searchBooks(Request $request)
     {
-        // $query = $request->get('query');
-        // $books = Book::where('book_bangla_name', 'LIKE', "%{$query}%")
-        //              ->orWhere('book_english_name', 'LIKE', "%{$query}%")
-        //              ->get();
-
-        // return response()->json($books);
-        // $stockDetail = Stock_Detail::get();
-        // if(){
-
-        // }
         $query = $request->get('query');
         $stockDetails = Stock_Detail::whereHas('book', function ($q) use ($query) {
             $q->where('book_bangla_name', 'LIKE', "%{$query}%")
                 ->orWhere('book_english_name', 'LIKE', "%{$query}%");
         })->with('book')->get();
-
-        // dd($stockDetails);
 
         return response()->json($stockDetails);
     }
@@ -55,9 +63,7 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $books = $request->input('books');
-        // dd($books);
 
-        // Validate request data
         $request->validate([
             'books' => 'required|array',
             'books.*.book_id' => 'required|exists:books,id',
@@ -65,8 +71,6 @@ class TransactionController extends Controller
             'books.*.subtotal' => 'required|numeric|min:0',
         ]);
 
-
-        // Handle customer selection or creation
         $customerId = $request->input('customer_id');
         $check = Customer::where('id', $customerId)->first();
 
@@ -75,13 +79,14 @@ class TransactionController extends Controller
                 'name' => 'unknown',
                 'phone' => 0,
                 'address' => 'unknown',
-                // 'user_id' => auth()->id(),
+                'user_id' => auth()->id(),
             ];
             $cus = Customer::create($customer);
             $customerId = $cus->id;
         }
 
-        // Calculate total quantity and total price
+        $invoice = IdGenerator::generate(['table' => 'sales', 'field' => 'invoiceID', 'length' => 7, 'prefix' => 'INVO#']);
+
         $totalQuantity = 0;
         $totalPrice = 0;
 
@@ -90,28 +95,25 @@ class TransactionController extends Controller
             $totalPrice += $book['subtotal'];
         }
 
-        // Create the sale
         $sale = Sale::create([
             'total_quantity' => $totalQuantity,
             'total_price' => $totalPrice,
+            'invoiceID' => $invoice,
             'discount' => $request->input('discount', 0),
             'customer_id' => $customerId,
-            // 'user_id' => auth()->id(),
+            'user_id' => auth()->id(),
         ]);
 
-        // Create sale details and update stock
         foreach ($books as $book) {
-            SaleDetails::create([
+            $details = SaleDetails::create([
                 'book_id' => $book['book_id'],
                 'sales_id' => $sale->id,
-                // 'uni_code' => $uniCode,
                 'customer_id' => $customerId,
                 'quantity' => $book['quantity'],
                 'price' => $book['price'],
                 'subtotal' => $book['subtotal'],
             ]);
 
-            // Update the stock
             $stock = Stock::where('book_id', $book['book_id'])->first();
             if ($stock) {
                 if ($stock->total_quantity < $book['quantity']) {
@@ -125,14 +127,12 @@ class TransactionController extends Controller
                 return redirect()->back()->withErrors(['message' => 'Stock detail not found for book ID ' . $book['book_id']]);
             }
 
-            // Update the stock_details
             $stock_details = Stock_Detail::where('book_id', $book['book_id'])->first();
             if ($stock_details) {
                 if ($stock_details->quantity < $book['quantity']) {
                     return redirect()->back()->withErrors(['message' => 'Not enough stock for book ID ' . $book['book_id']]);
                 }
                 $stock_details->quantity -= $book['quantity'];
-                // $stock->price -= $book['quantity'] * $book['price'];
                 $stock_details->save();
             } else {
                 DB::rollBack();
@@ -141,71 +141,103 @@ class TransactionController extends Controller
         }
         return redirect()->route('transactions.print_show')->with('success', 'Transaction created successfully.');
     }
+
     public function print_show()
     {
-        return view('backend.invoice.finished');
-    }
+        $sale = Sale::orderBy('id', 'DESC')->first();
 
-    public function big_note(Request $request)
-    {
-        // Find the sales transaction using the ID stored in the session
-        $sale = Sale::find(session('id'));
-
-        // If the sales transaction is not found, return a 404 error
-        // if (!$sale) {
-        //     abort(404);
-        // }
-
-        // Retrieve the details of the sales transaction and load related product information
-        $details = SaleDetails::with('book')
-            ->where('sales_id', session('id'))
-            ->get();
-
-        // Convert the total price to words using the SpellNumber class
-        try {
-            $spell = SpellNumber::spell($sale->total_price) // Use 'spell' method instead of 'value'
-                ->locale('en')
-                ->currency('Taka')
-                ->fraction('Paisa')
-                ->toMoney();
-        } catch (\Exception $e) {
-            // Handle the error or provide a fallback
-            $spell = 'Unable to convert number to words';
+        if ($sale) {
+            $sale_id = $sale->id;
+            $details = SaleDetails::where('sales_id', $sale_id)->get(); // Get all sale details
+        } else {
+            $details = collect(); // Empty collection
         }
 
-        $spell = ucfirst($spell);
-
-        // Get the current date
-        $currentDate = Carbon::now()->toFormattedDateString(); // e.g., May 31, 2024
-
-        // Load the view for the large invoice and pass the retrieved data to it
-        $pdf = PDF::loadView('backend.invoice.invo', compact('sale', 'details', 'spell', 'currentDate'));
-
-        // Set the dimensions and orientation of the PDF
-        $pdf->setPaper([0, 0, 609, 440], 'portrait');
-
-        // Stream the generated PDF to the browser with a dynamic filename
-        return $pdf->stream('Transaction-' . date('Y-m-d-his') . '.pdf');
+        return view('backend.invoice.finished', compact('details', 'sale'));
     }
-    public function small_note()
+
+    public function invoice(Request $request, $id)
     {
-        // Retrieve the settings for the application
-        // $setting = Setting::first();
+        // dd($request->id);
 
-        // Find the sale transaction using the session ID stored in 'id_penjualan'
-        $sale = Sale::find(session('id'));
+        $sale = Sale::where('id', $request->id)->first();
+        // dd($sale);
 
-        // If the sale transaction is not found, abort the request with a 404 error
+        $details = SaleDetails::where('sales_id', $request->id)->get(); // Get all sale details
+        // dd($details);
+
+        $customer = Customer::where('id', $sale->customer_id)->first();
+        // dd($customer);
+
+        $currentDate = Carbon::now()->toFormattedDateString();
+
+        return view('backend.invoice.invoice', compact('details', 'currentDate', 'sale', 'customer'));
+    }
+
+
+
+    public function reportPDF(Request $request)
+    {
+        $result = $request->id;
+
+        // Find the sale by ID
+        $sale = Sale::where('id', $result)->first();
         if (!$sale) {
-            abort(404);
+            return redirect()->back()->withErrors(['message' => 'Sale not found.']);
         }
 
-        // Retrieve the details of the sale transaction along with related product information
-        $detail = SaleDetails::with('book')
-            ->where('id', session('id'))
-            ->get();
+        $customer = Customer::where('id', $sale->customer_id)->first();
+        // dd($customer);
 
-        // Pass the fetched data to the 'penjualan.nota_kecil' view
-        return view('backend.invoice.small_note', compact('sale', 'detail'));
+        // Find sale details by sales_id
+        $details = SaleDetails::where('sales_id', $result)->get();
+        if ($details->isEmpty()) {
+            return redirect()->back()->withErrors(['message' => 'Sale details not found.']);
+        }
+
+        $currentDate = Carbon::now()->toFormattedDateString();
+
+        $pdf = PDF::loadView('backend.invoice.pdf', compact('sale', 'details', 'currentDate', 'customer'))->setPaper('a4', 'landscape');
+        return $pdf->download('ReportDetailSales' . '.pdf');
     }
+
+    public function print(Request $request)
+    {
+        $result = $request->id;
+
+        $sale = Sale::where('id', $request->id)->first();
+        // dd($sale);
+
+        $details = SaleDetails::where('sales_id', $request->id)->get(); // Get all sale details
+        // dd($details);
+
+        $customer = Customer::where('id', $sale->customer_id)->first();
+        // dd($customer);
+
+        $currentDate = Carbon::now()->toFormattedDateString();
+
+        return view('backend.invoice.print', compact('details', 'currentDate', 'sale', 'customer'));
+    }
+
+    // public function reportPDF(Request $request)
+    // {
+    //     $result = $request->id;
+    //     // dd($result);
+
+    //     $payrolles = DB::table('payrolles')->where('id', $request->id)->first();
+    //     $employees = DB::table('employees')->where('id', $payrolles->employee_id)->first(); 
+
+    //     $spell = SpellNumber::value($payrolles->net_salary)
+    //         ->locale('en') 
+    //         ->currency('Taka')
+    //         ->fraction('Paisa')
+    //         ->toMoney();
+
+    //         $spell = ucfirst($spell);
+
+    //         $pdf = PDF::loadView('backend.slip_generate.pdf',compact('payrolles','employees','spell'))->setPaper('a4', 'landscape');
+    //         return $pdf->download('ReportDetailSalary'.'.pdf');
+    // }
+
+
 }
